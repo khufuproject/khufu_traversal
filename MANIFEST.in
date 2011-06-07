@@ -1,0 +1,2 @@
+include *.rst
+recursive-include khufu_traversal *.html *.css *.png *.ico *.gif *.jpg *.ini *.txt
