@@ -33,7 +33,7 @@ class ResourceContainerTests(unittest.TestCase):
 
     def test_traversal_to_pk(self):
         rc = self.Container()
-        self.assertEqual(rc.traversal_to_pk(u'1'), u'1')
+        self.assertEqual(rc.traversal_to_pk(u'1'), (1,))
 
     def test_pk_to_traversal(self):
         rc = self.Container()
@@ -56,25 +56,57 @@ def create_model_class(**cols):
 
 class AttrProvidedContainerTests(unittest.TestCase):
 
-    def test_id_pk(self):
+    def make_container(self):
         from sqlalchemy import Column, Integer
-        self._test_it(id=Column(Integer, primary_key=True))
 
-    def test_simple_pk(self):
-        from sqlalchemy import Column, Integer
-        self._test_it(pk=Column(Integer, primary_key=True))
-
-    def test_compound_pk(self):
-        from sqlalchemy import Column, Integer
-        self._test_it(pk1=Column(Integer, primary_key=True),
-                      pk2=Column(Integer, primary_key=True))
-
-    def _test_it(self, **cols):
         from khufu_traversal import AttrProvidedContainer
 
-        MockObj = create_model_class(**cols)
-        children = [MockObj(name=1), MockObj(name=2)]
+        MockObj = create_model_class(id=Column(Integer, primary_key=True))
+        children = [
+            MockObj(id=1),
+            MockObj(id=2),
+            MockObj(id=3),
+            ]
         parent = Mock(children=children)
+        return AttrProvidedContainer('foo', parent, attr_name='children')
 
-        container = AttrProvidedContainer('foo', parent, 'children')
-        self.assertEqual(children, [x for x in container])
+    def test_nameless_constructor(self):
+        from khufu_traversal import AttrProvidedContainer
+        container = AttrProvidedContainer(attr_name='foo',
+                                          name=None)
+        self.assertEqual(container.__name__, 'foo')
+
+    def test_getitem(self):
+        container = self.make_container()
+        self.assertRaises(TypeError, lambda: container[5])
+        self.assertEqual(container[u'1'], container.parent.children[0])
+
+        # check the lazy property setting
+        self.assertEqual(container[u'1'], container.parent.children[0])
+
+    def test_iter(self):
+        container = self.make_container()
+        self.assertEqual([x for x in container], container.parent.children)
+
+
+class AttrProvidedContainerCompoundPKTests(unittest.TestCase):
+
+    def make_container(self):
+        from sqlalchemy import Column, Integer
+
+        from khufu_traversal import AttrProvidedContainer
+
+        MockObj = create_model_class(pk1=Column(Integer, primary_key=True),
+                                     pk2=Column(Integer, primary_key=True))
+        children = [
+            MockObj(pk1=10, pk2=6000),
+            MockObj(pk1=10, pk2=7000),
+            MockObj(pk1=20, pk2=43),
+            ]
+        parent = Mock(children=children)
+        return AttrProvidedContainer('foo', parent, attr_name='children')
+
+    def test_getitem(self):
+        container = self.make_container()
+        self.assertEqual(container[u'10-6000'],
+                         container.parent.children[0])

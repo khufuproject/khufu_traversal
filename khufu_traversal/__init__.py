@@ -29,7 +29,8 @@ class ResourceContainer(Locatable):
         return subobj
 
     def traversal_to_pk(self, traversal_name):
-        return traversal_name
+        cols = [int(x) for x in traversal_name.split('-')]
+        return tuple(cols)
 
     def pk_to_traversal(self, pk):
         return unicode(pk)
@@ -57,6 +58,10 @@ class AttrProvidedContainer(ResourceContainer):
         return getattr(self.parent, self.attr_name)
 
     def __getitem__(self, k):
+        if not isinstance(k, basestring):
+            raise TypeError('key must be a string, not an '
+                            'instance of: ' % str(type(k)))
+
         pk = self.traversal_to_pk(k)
 
         if self._pk_map is not None:
@@ -64,7 +69,7 @@ class AttrProvidedContainer(ResourceContainer):
 
         self._pk_map = {}
         for resource in self.attr:
-            self._pk_map[self.get_pk(resource)] = resource
+            self._pk_map[tuple(self.get_pk(resource))] = resource
 
         return self.wrap(self._pk_map[pk], k)
 
@@ -90,6 +95,10 @@ class SQLContainer(ResourceContainer):
         self.filter_by_kwargs = filter_by_kwargs
 
     def __getitem__(self, k):
+        if not isinstance(k, basestring):
+            raise TypeError('key must be a string, not an '
+                            'instance of: ' % str(type(k)))
+
         db = khufu_sqlalchemy.dbsession(self.request)
 
         o = db.query(self.model_class).get(self.traversal_to_pk(k))
