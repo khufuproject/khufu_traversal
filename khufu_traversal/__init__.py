@@ -29,6 +29,10 @@ class ResourceContainer(Locatable):
         return subobj
 
     def traversal_to_pk(self, traversal_name):
+        if not isinstance(traversal_name, basestring):
+            raise TypeError('key must be a string, not an '
+                            'instance of: ' + str(type(traversal_name)))
+
         cols = [int(x) for x in traversal_name.split('-')]
         return tuple(cols)
 
@@ -46,6 +50,8 @@ class AttrProvidedContainer(ResourceContainer):
     '''
 
     def __init__(self, name=None, parent=None, attr_name=None):
+        super(AttrProvidedContainer, self).__init__()
+
         if name is None:
             name = attr_name
         self.__name__ = name
@@ -58,10 +64,6 @@ class AttrProvidedContainer(ResourceContainer):
         return getattr(self.parent, self.attr_name)
 
     def __getitem__(self, k):
-        if not isinstance(k, basestring):
-            raise TypeError('key must be a string, not an '
-                            'instance of: ' % str(type(k)))
-
         pk = self.traversal_to_pk(k)
 
         if self._pk_map is not None:
@@ -83,31 +85,28 @@ class SQLContainer(ResourceContainer):
     given an arbitrary filter_by expression.
     '''
 
-    model_class = None
-
-    def __init__(self, name=None, parent=None, request=None,
+    def __init__(self,
+                 name=None,
+                 parent=None,
+                 request=None,
+                 model_class=None,
                  filter_by_kwargs={}):
         super(SQLContainer, self).__init__()
 
         self.__name__ = name
         self.__parent__ = parent
+        self.model_class = model_class
         self.request = request
         self.filter_by_kwargs = filter_by_kwargs
 
     def __getitem__(self, k):
-        if not isinstance(k, basestring):
-            raise TypeError('key must be a string, not an '
-                            'instance of: ' % str(type(k)))
-
         db = khufu_sqlalchemy.dbsession(self.request)
 
         o = db.query(self.model_class).get(self.traversal_to_pk(k))
-        if o is None:
-            raise KeyError(k)
 
         if self.filter_by_kwargs:
             for k, v in self.filter_by_kwargs.items():
-                if getattr(o, k) != v:
+                if getattr(o, k, None) != v:
                     raise KeyError(k)
 
         return self.wrap(o, k)
@@ -127,7 +126,9 @@ class SQLContainer(ResourceContainer):
             q = q.filter_by(**filter_by_kwargs)
 
         for obj in q:
-            yield self.wrap(obj, self.pk_to_traversal(obj.id))
+            mapper = sqlalchemy.orm.object_mapper(obj)
+            pk = mapper.primary_key_from_instance(obj)
+            yield self.wrap(obj, self.pk_to_traversal(pk))
 
     def __iter__(self):
         return self.filter_by()

@@ -9,19 +9,17 @@ class Mock(object):
 
 class ResourceContainerTests(unittest.TestCase):
 
-    @property
-    def Container(self):
-        if hasattr(self, 'container_class'):
-            return self._container_class
-
+    def setUp(self):
         from khufu_traversal import ResourceContainer
 
         class MyContainer(ResourceContainer):
-            def __iter__(self): pass
-            def __getitem__(self, k): pass
+            def __iter__(self):
+                pass
 
-        self._container_class = MyContainer
-        return self._container_class
+            def __getitem__(self, k):
+                pass
+
+        self.Container = MyContainer
 
     def test_wrap(self):
         rc = self.Container()
@@ -78,7 +76,10 @@ class AttrProvidedContainerTests(unittest.TestCase):
 
     def test_getitem(self):
         container = self.make_container()
+
+        # test bad traversal name type
         self.assertRaises(TypeError, lambda: container[5])
+
         self.assertEqual(container[u'1'], container.parent.children[0])
 
         # check the lazy property setting
@@ -110,3 +111,86 @@ class AttrProvidedContainerCompoundPKTests(unittest.TestCase):
         container = self.make_container()
         self.assertEqual(container[u'10-6000'],
                          container.parent.children[0])
+
+
+class SQLContainerTests(unittest.TestCase):
+
+    def setUp(self):
+        from sqlalchemy import Column, Integer
+        MockObj = create_model_class(id=Column(Integer, primary_key=True))
+
+        class Session(object):
+            data = {(1,): MockObj(id=1, name='grr'),
+                    (2,): MockObj(id=2, name='abc'),
+                    (3,): MockObj(id=3, name='foo'),
+                    (4,): MockObj(id=4, name='yes')}
+
+            def query(self, model_class):
+                return self
+
+            def get(self, pk):
+                return self.data[pk]
+
+            def __iter__(self):
+                return iter(self.data.values())
+
+            def filter_by(self, **kwargs):
+                for x in self.data.values():
+                    passed = filter(lambda tup: getattr(x, tup[0], None) == tup[1],
+                                    kwargs.items())
+                    if len(passed) == len(kwargs):
+                        yield x
+
+        class Request(object):
+            environ = {}
+
+            def session_factory():
+                return Session()
+
+            @staticmethod
+            def add_finished_callback(f):
+                pass
+
+            registry = Mock(
+                settings={'khufu.dbsession_factory': session_factory})
+
+        self.session = Session
+        self.request = Request()
+
+        from khufu_traversal import SQLContainer
+        self.container = SQLContainer(model_class=MockObj,
+                                      request=self.request)
+
+    def test_getitem(self):
+        container = self.container
+        session = self.session
+
+        self.assertEqual(getattr(session.data[(1,)], '__name__', None), None)
+        self.assertEqual(container['1'], session.data[(1,)])
+        self.assertEqual(getattr(session.data[(1,)], '__name__', None), '1')
+
+        # test missing object
+        self.assertRaises(KeyError, lambda: container['5'])
+
+    def test_getitem_filter_by(self):
+        container = self.container
+        container.filter_by_kwargs = {'name': 'abc'}
+
+        self.assertRaises(KeyError, lambda: container['1'])
+        self.assertTrue(container['2'] is not None)
+
+    def test_filter_by(self):
+        container = self.container
+        session = self.session
+
+        self.assertEqual(set([x.id for x in container.filter_by()]),
+                         set([x.id for x in session.data.values()]))
+        self.assertEqual(set([x.id for x in container.filter_by(name='abc')]),
+                         set([2]))
+
+    def test_iter(self):
+        container = self.container
+        session = self.session
+
+        self.assertEqual(set([x.id for x in container]),
+                         set([x.id for x in session.data.values()]))
