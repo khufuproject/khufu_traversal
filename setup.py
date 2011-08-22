@@ -7,14 +7,14 @@ README = open(os.path.join(here, 'README.rst')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.rst')).read()
 
 required = [
-    'pyramid >= 1.0',
     'khufu_sqlalchemy',
+    'pyramid_traversalwrapper',
 ]
 
 
 setup(name='khufu_traversal',
       version='0.1',
-      description='khufu_traversal - a web application',
+      description='Helper for working with SQL-based traversal in Pyramid',
       long_description=README + '\n\n' + CHANGES,
       license='BSD',
       classifiers=[
@@ -25,7 +25,7 @@ setup(name='khufu_traversal',
       author='Rocky Burt',
       author_email='rocky@serverzen.com',
       url='https://github.com/khufuproject/khufu_traversal',
-      keywords='web wsgi pylons pyramid',
+      keywords='web wsgi pylons pyramid sql traversal',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
