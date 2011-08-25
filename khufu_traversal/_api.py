@@ -158,11 +158,16 @@ class TraversalProxy(pyramid_traversalwrapper.LocationProxy):
 
 
 class Locatable(object):
+    '''Mixin representing anything with a name and parent'''
+
     __name__ = None
     __parent__ = None
 
 
 class ResourceContainer(Locatable):
+    '''All containers created are subclasses of ResourceContainer.
+    '''
+
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
