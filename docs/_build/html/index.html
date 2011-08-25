@@ -1,0 +1,263 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>khufu_sqlalchemy &mdash; khufu_sqlalchemy v0.4 documentation</title>
+    <link rel="stylesheet" href="_static/pylons.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="khufu_sqlalchemy v0.4 documentation" href="#" />
+    <link rel="next" title="khufu_sqlalchemy API" href="api.html" />
+<link rel="stylesheet" href="http://static.pylonsproject.org/fonts/nobile/stylesheet.css" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://static.pylonsproject.org/fonts/neuton/stylesheet.css" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+<link rel="shortcut icon" href="_static/pyramid.ico"/>
+
+  </head>
+  <body>
+<div class="header-small">
+	
+	<div class="logo-small">
+		<a href="#">
+      		<img class="logo" src="_static/pyramid-small.png" alt="Logo"/>
+		</a>
+  	</div>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="api.html" title="khufu_sqlalchemy API"
+             accesskey="N">next</a> |</li>
+    	<li><a href="#">Home</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="khufu-sqlalchemy">
+<h1>khufu_sqlalchemy<a class="headerlink" href="#khufu-sqlalchemy" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p><em>khufu_sqlalchemy</em> is an opinionated way of managing <a class="reference internal" href="glossary.html#term-sqlalchemy"><em class="xref std std-term">SQLAlchemy</em></a> based
+connections with <a class="reference internal" href="glossary.html#term-pyramid"><em class="xref std std-term">Pyramid</em></a>.</p>
+</div>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li>Python &gt;= 2.5 (not tested with Python 3.x series)</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<p>Before including <a class="reference internal" href="glossary.html#term-khufu-sqlalchemy"><em class="xref std std-term">khufu_sqlalchemy</em></a> config support it is important
+to have one of the three prerequisites fulfilled within the
+<tt class="docutils literal"><span class="pre">config.registry.settings</span></tt> dict:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">Provide <tt class="docutils literal"><span class="pre">sqlalchemy.url</span></tt>.  In this scenario, <a class="reference internal" href="glossary.html#term-khufu-sqlalchemy"><em class="xref std std-term">khufu_sqlalchemy</em></a>
+will build up the sqlalchemy <a class="reference internal" href="glossary.html#term-engine"><em class="xref std std-term">engine</em></a> and <a class="reference internal" href="glossary.html#term-session-factory"><em class="xref std std-term">session factory</em></a>
+on config inclusion.  An example:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyramid.config</span> <span class="kn">import</span> <span class="n">Configurator</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configurator</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;sqlalchemy.url&#39;</span><span class="p">:</span> <span class="s">&#39;sqlite:///:memory&#39;</span><span class="p">})</span>
+<span class="n">config</span><span class="o">.</span><span class="n">include</span><span class="p">(</span><span class="s">&#39;khufu_sqlalchemy&#39;</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</li>
+<li><p class="first">Provide <tt class="docutils literal"><span class="pre">khufu.dbengine</span></tt>.  In this scenario, <a class="reference internal" href="glossary.html#term-khufu-sqlalchemy"><em class="xref std std-term">khufu_sqlalchemy</em></a>
+will build up the sqlalchemy <a class="reference internal" href="glossary.html#term-session-factory"><em class="xref std std-term">session factory</em></a> on config inclusion.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyramid.config</span> <span class="kn">import</span> <span class="n">Configurator</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="s">&#39;sqlite:///:memory&#39;</span><span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configurator</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;khufu.dbengine&#39;</span><span class="p">:</span> <span class="n">engine</span><span class="p">})</span>
+<span class="n">config</span><span class="o">.</span><span class="n">include</span><span class="p">(</span><span class="s">&#39;khufu_sqlalchemy&#39;</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</li>
+<li><p class="first">The last option is to provide <tt class="docutils literal"><span class="pre">khufu.dbsession_factory</span></tt>.  In this scenario,
+nothing else needs to be looked up by <a class="reference internal" href="glossary.html#term-khufu-sqlalchemy"><em class="xref std std-term">khufu_sqlalchemy</em></a>.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyramid.config</span> <span class="kn">import</span> <span class="n">Configurator</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">scoped_session</span><span class="p">,</span> <span class="n">sessionmaker</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="s">&#39;sqlite:///:memory&#39;</span><span class="p">)</span>
+<span class="n">Session</span> <span class="o">=</span> <span class="n">scoped_session</span><span class="p">(</span><span class="n">sessionmaker</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="n">engine</span><span class="p">))</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configurator</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;khufu.dbsession_factory&#39;</span><span class="p">:</span> <span class="n">Session</span><span class="p">})</span>
+<span class="n">config</span><span class="o">.</span><span class="n">include</span><span class="p">(</span><span class="s">&#39;khufu_sqlalchemy&#39;</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>The standard way to lookup the active database session is as follows:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyramid.view</span> <span class="kn">import</span> <span class="n">view_config</span>
+<span class="kn">from</span> <span class="nn">pyramid_sqlalchemy</span> <span class="kn">import</span> <span class="n">dbsession</span>
+
+<span class="nd">@view_config</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">SomeContainer</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">users_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="n">dbsession</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">&#39;items&#39;</span><span class="p">:</span> <span class="n">db</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SomeDBModel</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()}</span>
+</pre></div>
+</td></tr></table></div>
+<p>NOTE #1: The <tt class="docutils literal"><span class="pre">db</span></tt> object is a simple instance of a <a class="reference internal" href="glossary.html#term-sqlalchemy"><em class="xref std std-term">SQLAlchemy</em></a>
+database session.  You should never commit this directly or worry
+about closing it.  The <a class="reference internal" href="glossary.html#term-transaction"><em class="xref std std-term">transaction</em></a> package takes care of this.</p>
+<p>NOTE #2: The <a class="reference internal" href="glossary.html#term-sqlalchemy"><em class="xref std std-term">SQLAlchemy</em></a> database session is created lazily
+upon first dbsession() use.  Multiple calls to dbsession(request)
+will each return the same session as long as the request is the same.</p>
+</div>
+<div class="section" id="transaction-handling">
+<h2>Transaction Handling<a class="headerlink" href="#transaction-handling" title="Permalink to this headline">¶</a></h2>
+<p>If your application requires control over the transaction handling,
+please use the <a class="reference internal" href="glossary.html#term-transaction"><em class="xref std std-term">transaction</em></a> and <a class="reference internal" href="glossary.html#term-pyramid-tm"><em class="xref std std-term">pyramid_tm</em></a> api&#8217;s.</p>
+</div>
+<div class="section" id="paster-template">
+<h2>Paster Template<a class="headerlink" href="#paster-template" title="Permalink to this headline">¶</a></h2>
+<p><em>khufu_sqlalchemy</em> provides a paster template for starting out a
+project using <em>khufu_sqlalchemy</em>.</p>
+<div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span class="nv">$ </span>paster create -t khufu_sqlalchemy myproject
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="credits">
+<h2>Credits<a class="headerlink" href="#credits" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li>Developed and maintained by Rocky Burt &lt;rocky AT serverzen DOT com&gt;</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="more-information">
+<h2>More Information<a class="headerlink" href="#more-information" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html"><tt class="docutils literal"><span class="pre">khufu_sqlalchemy</span></tt> API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="glossary.html#glossary"><em>Glossary</em></a></li>
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">khufu_sqlalchemy</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#setup">Setup</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#transaction-handling">Transaction Handling</a></li>
+<li><a class="reference internal" href="#paster-template">Paster Template</a></li>
+<li><a class="reference internal" href="#credits">Credits</a></li>
+<li><a class="reference internal" href="#more-information">More Information</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="next chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">khufu_sqlalchemy</span></tt> API</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="api.html" title="khufu_sqlalchemy API"
+             >next</a> |</li>
+    	<li><a href="#">Home</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Rocky Burt.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
