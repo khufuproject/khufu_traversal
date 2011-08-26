@@ -131,11 +131,13 @@ class TraversalProxy(pyramid_traversalwrapper.LocationProxy):
                  '__request__', '_dict_items', '__acl__')
 
     def __new__(self, ob, container=None, name=None, request=None,
-                dict_items={}):
+                dict_items=None):
         return pyramid_traversalwrapper.LocationProxy.__new__(self, ob)
 
     def __init__(self, ob, container=None, name=None, request=None,
-                 dict_items={}):
+                 dict_items=None):
+        if dict_items is None:
+            dict_items = {}
         pyramid_traversalwrapper.LocationProxy.__init__(
             self, ob, container, name)
         self.__request__ = request
