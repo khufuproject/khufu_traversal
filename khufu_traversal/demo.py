@@ -1,3 +1,8 @@
+'''To run this demo, simply execute::
+
+  $ python -m khufu_traversal.demo
+'''
+
 import transaction
 from paste.httpserver import serve
 from pyramid.response import Response
@@ -10,6 +15,9 @@ from khufu_traversal import MappingRoot
 
 
 def main():
+    '''Listen on port 8080 with the demo application.
+    '''
+
     config = Configurator(root_factory=MappingRoot)
     config.registry.settings['sqlalchemy.url'] = \
         'sqlite:////tmp/khufu_sqlalchemy.demo.db'
@@ -79,6 +87,9 @@ user_groups_table = Table(
 
 
 class Group(Base):
+    '''SQLAlchemy model representing a Group.
+    '''
+
     __tablename__ = 'groups'
 
     id = Column(Integer, primary_key=True)
@@ -89,6 +100,9 @@ class Group(Base):
 
 
 class User(Base):
+    '''SQLAlchemy model representing a User.
+    '''
+
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
