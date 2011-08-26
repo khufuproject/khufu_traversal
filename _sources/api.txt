@@ -10,3 +10,8 @@
 .. autoclass:: Locatable
 .. autoclass:: ResourceContainer
 .. autofunction:: includeme
+
+.. automodule:: khufu_traversal.demo
+.. autofunction:: main
+.. autoclass:: User
+.. autoclass:: Group
