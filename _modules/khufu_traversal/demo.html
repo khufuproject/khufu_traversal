@@ -1,0 +1,258 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>khufu_traversal.demo &mdash; khufu_traversal v0.4 documentation</title>
+    <link rel="stylesheet" href="../../_static/pylons.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="khufu_traversal v0.4 documentation" href="../../index.html" />
+    <link rel="up" title="khufu_traversal" href="../khufu_traversal.html" />
+<link rel="stylesheet" href="http://static.pylonsproject.org/fonts/nobile/stylesheet.css" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://static.pylonsproject.org/fonts/neuton/stylesheet.css" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+<link rel="shortcut icon" href="../../_static/pyramid.ico"/>
+
+  </head>
+  <body>
+<div class="header-small">
+	
+	<div class="logo-small">
+		<a href="../../index.html">
+      		<img class="logo" src="../../_static/pyramid-small.png" alt="Logo"/>
+		</a>
+  	</div>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    	<li><a href="../../index.html">Home</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../khufu_traversal.html" accesskey="U">khufu_traversal</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for khufu_traversal.demo</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;To run this demo, simply execute::</span>
+
+<span class="sd">  $ python -m khufu_traversal.demo</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">transaction</span>
+<span class="kn">from</span> <span class="nn">paste.httpserver</span> <span class="kn">import</span> <span class="n">serve</span>
+<span class="kn">from</span> <span class="nn">pyramid.response</span> <span class="kn">import</span> <span class="n">Response</span>
+<span class="kn">from</span> <span class="nn">pyramid.config</span> <span class="kn">import</span> <span class="n">Configurator</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Column</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">,</span> <span class="n">Unicode</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">Table</span><span class="p">,</span> <span class="n">String</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">relationship</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="kn">import</span> <span class="n">declarative_base</span>
+<span class="kn">from</span> <span class="nn">khufu_traversal</span> <span class="kn">import</span> <span class="n">MappingRoot</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../api.html#khufu_traversal.demo.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;Listen on port 8080 with the demo application.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">Configurator</span><span class="p">(</span><span class="n">root_factory</span><span class="o">=</span><span class="n">MappingRoot</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;sqlalchemy.url&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="s">&#39;sqlite:////tmp/khufu_sqlalchemy.demo.db&#39;</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">include</span><span class="p">(</span><span class="s">&#39;khufu_sqlalchemy&#39;</span><span class="p">)</span>
+
+    <span class="n">config</span><span class="o">.</span><span class="n">include</span><span class="p">(</span><span class="s">&#39;khufu_traversal&#39;</span><span class="p">)</span>
+    <span class="n">GroupContainer</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">setup_model_container</span><span class="p">(</span><span class="n">Group</span><span class="p">,</span> <span class="p">[(</span><span class="s">&#39;users&#39;</span><span class="p">,</span> <span class="n">User</span><span class="p">)])</span>
+    <span class="n">UserContainer</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">setup_model_container</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="p">[(</span><span class="s">&#39;groups&#39;</span><span class="p">,</span> <span class="n">Group</span><span class="p">)])</span>
+
+    <span class="n">config</span><span class="o">.</span><span class="n">add_view</span><span class="p">(</span><span class="n">index_view</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">MappingRoot</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_view</span><span class="p">(</span><span class="n">groups_view</span><span class="p">,</span>
+                    <span class="n">context</span><span class="o">=</span><span class="n">GroupContainer</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_view</span><span class="p">(</span><span class="n">users_view</span><span class="p">,</span>
+                    <span class="n">context</span><span class="o">=</span><span class="n">UserContainer</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_view</span><span class="p">(</span><span class="n">user_view</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">User</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_view</span><span class="p">(</span><span class="n">group_view</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">Group</span><span class="p">)</span>
+
+    <span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;khufu.dbengine&#39;</span><span class="p">])</span>
+    <span class="n">setup_data</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">make_wsgi_app</span><span class="p">()</span>
+    <span class="n">serve</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s">&#39;0.0.0.0&#39;</span><span class="p">)</span>
+
+</div>
+<span class="k">def</span> <span class="nf">setup_data</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;khufu.dbsession_factory&#39;</span><span class="p">]()</span>
+    <span class="n">transaction</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="s">&#39;user&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">u</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
+                     <span class="n">email</span><span class="o">=</span><span class="n">username</span> <span class="o">+</span> <span class="s">u&#39;@&#39;</span> <span class="o">+</span> <span class="n">username</span> <span class="o">+</span> <span class="s">u&#39;.com&#39;</span><span class="p">,</span>
+                     <span class="nb">id</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+
+        <span class="n">groupname</span> <span class="o">=</span> <span class="s">&#39;group&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">groupname</span><span class="o">=</span><span class="n">groupname</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Group</span><span class="p">(</span><span class="n">groupname</span><span class="o">=</span><span class="n">groupname</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="n">grp</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">groupname</span><span class="o">=</span><span class="s">&#39;commongroup&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">grp</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">grp</span> <span class="o">=</span> <span class="n">Group</span><span class="p">(</span><span class="n">groupname</span><span class="o">=</span><span class="s">&#39;commongroup&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">grp</span><span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s">&#39;user1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">grp</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">u</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grp</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s">&#39;user2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">grp</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">u</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grp</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+
+    <span class="n">transaction</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">()</span>
+
+
+<span class="n">user_groups_table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
+    <span class="s">&#39;user_groups&#39;</span><span class="p">,</span> <span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+    <span class="n">Column</span><span class="p">(</span><span class="s">&#39;user_id&#39;</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s">&#39;users.id&#39;</span><span class="p">)),</span>
+    <span class="n">Column</span><span class="p">(</span><span class="s">&#39;group_id&#39;</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s">&#39;groups.id&#39;</span><span class="p">))</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="Group"><a class="viewcode-back" href="../../api.html#khufu_traversal.demo.Group">[docs]</a><span class="k">class</span> <span class="nc">Group</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;SQLAlchemy model representing a Group.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&#39;groups&#39;</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">groupname</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;(Group groupname=&quot;</span><span class="si">%s</span><span class="s">&quot;)&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupname</span>
+
+</div>
+<div class="viewcode-block" id="User"><a class="viewcode-back" href="../../api.html#khufu_traversal.demo.User">[docs]</a><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;SQLAlchemy model representing a User.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&#39;users&#39;</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">email</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Unicode</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="n">Group</span><span class="p">,</span> <span class="n">secondary</span><span class="o">=</span><span class="n">user_groups_table</span><span class="p">,</span> <span class="n">backref</span><span class="o">=</span><span class="s">&#39;users&#39;</span><span class="p">)</span>
+
+</div>
+<span class="k">def</span> <span class="nf">index_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="s">&#39;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;users/&quot;&gt;Users&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;groups/&quot;&gt;Groups&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">groups_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;&lt;div&gt;total groups: </span><span class="si">%i</span><span class="se">\n</span><span class="s">&lt;ul&gt;&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">context</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;&lt;li&gt;&lt;a href=&quot;</span><span class="si">%s</span><span class="s">/&quot;&gt;</span><span class="si">%i</span><span class="s"> - </span><span class="si">%s</span><span class="s">&lt;/a&gt;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&#39;/groups/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">groupname</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;&lt;/ul&gt;&#39;</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">users_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;&lt;div&gt;total users: </span><span class="si">%i</span><span class="se">\n</span><span class="s">&lt;ul&gt;&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">context</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;&lt;li&gt;&lt;a href=&quot;</span><span class="si">%s</span><span class="s">/&quot;&gt;</span><span class="si">%i</span><span class="s"> - </span><span class="si">%s</span><span class="s">&lt;/a&gt;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&#39;/users/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">groups</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;&lt;ul&gt;&#39;</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;&lt;li&gt;&lt;a href=&quot;</span><span class="si">%s</span><span class="s">/&quot;&gt;</span><span class="si">%i</span><span class="s"> - </span><span class="si">%s</span><span class="s">&lt;/a&gt;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&#39;/groups/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">y</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">groupname</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;&lt;/ul&gt;&#39;</span>
+    <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;&lt;/ul&gt;&#39;</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">user_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;&lt;div&gt;User: </span><span class="si">%s</span><span class="s"> (&lt;a href=&quot;groups/&quot;&gt;groups&lt;/a&gt;)&lt;/div&gt;&#39;</span> <span class="o">%</span> <span class="n">request</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">username</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">group_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;&lt;div&gt;Group: </span><span class="si">%s</span><span class="s"> (&lt;a href=&quot;users/&quot;&gt;users&lt;/a&gt;)&lt;/div&gt;&#39;</span> <span class="o">%</span> <span class="n">request</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">groupname</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    	<li><a href="../../index.html">Home</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../khufu_traversal.html" >khufu_traversal</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Rocky Burt.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
