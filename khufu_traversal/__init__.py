@@ -3,6 +3,9 @@ from khufu_traversal._api import (
     ITraversalSetup,
     Locatable,
     ResourceContainer,
+    get_model_container,
+    setup_model_container,
+    expose_attrs
     )
 
 
@@ -11,10 +14,9 @@ def includeme(c):
         ``config.include('khufu_traversal')``
     '''
 
-    c.add_directive('setup_model_container',
-                    khufu_traversal._api.setup_model_container)
-    c.add_directive('expose_attrs',
-                    khufu_traversal._api.expose_attrs)
+    c.add_directive('setup_model_container', setup_model_container)
+    c.add_directive('expose_attrs', expose_attrs)
+    c.add_directive('get_model_container', get_model_container)
 
 
 class MappingRoot(object):

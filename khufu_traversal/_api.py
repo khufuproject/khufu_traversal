@@ -44,7 +44,10 @@ def get_or_set_util(c):
 
 
 class BaseContainer(object):
-    pass
+
+    def __str__(self):
+        return '<%s>' % str(self.__class__.__name__)
+    __repr__ = __str__
 
 
 def get_or_set_base(c, model):
@@ -110,8 +113,7 @@ def setup_model_container(c, model, attr_mappings=None,
         (ModelContainer, base),
         {'model_class': model})
 
-    if attr_mappings:
-        expose_attrs(c, model, attr_mappings)
+    expose_attrs(c, model, attr_mappings or [])
 
     if traversal_name is None:
         traversal_name = model.__name__.lower() + 's'
@@ -205,6 +207,10 @@ class ResourceContainer(Locatable):
         mapper = sqlalchemy.orm.object_mapper(o)
         return mapper.primary_key_from_instance(o)
 
+    def __str__(self):
+        return '<%s>' % str(self.__class__.__name__)
+    __repr__ = __str__
+
 
 class AttrProvidedContainer(ResourceContainer):
     '''A location-aware container for models that live as
@@ -251,6 +257,10 @@ class AttrProvidedContainer(ResourceContainer):
 
     def __len__(self):
         return len(self.attr)
+
+    def __str__(self):
+        return '<%s>' % str(self.__class__.__name__)
+    __repr__ = __str__
 
 
 class ModelContainer(ResourceContainer):
@@ -315,3 +325,11 @@ class ModelContainer(ResourceContainer):
 
     def __iter__(self):
         return self.filter_by()
+
+
+def get_model_container(c, model_class):
+    u = get_or_set_util(c)
+    # make sure it's setup first
+    c.setup_model_container(model_class)
+    o = u.model_containers.get(model_class, None)
+    return o.modelcontainer
