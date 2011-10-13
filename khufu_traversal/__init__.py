@@ -5,7 +5,7 @@ from khufu_traversal._api import (
     ResourceContainer,
     get_model_container,
     setup_model_container,
-    expose_attrs
+    expose_attrs,
     )
 
 
@@ -23,6 +23,9 @@ class MappingRoot(object):
     '''A root factory that is aware of khufu registered traversal
     models.
     '''
+
+    __name__ = None
+    __parent__ = None
 
     def __init__(self, request):
         self.request = request
