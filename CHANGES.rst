@@ -1,8 +1,10 @@
 Changes
 =======
 
-0.1.1 - unreleased
+1.0a1 - unreleased
 ------------------
+
+  * added tests
 
   * Fixed pesky use of global dict 
 

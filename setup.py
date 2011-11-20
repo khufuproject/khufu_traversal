@@ -13,7 +13,7 @@ required = [
 
 
 setup(name='khufu_traversal',
-      version='0.1',
+      version='1.0a1',
       description='Helper for working with SQL-based traversal in Pyramid',
       long_description=README + '\n\n' + CHANGES,
       license='BSD',
